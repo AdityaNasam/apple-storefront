@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { notifySlockOrder } from "@/lib/slock";
+import { dedupeStripeEvent } from "@/lib/idempotency";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,10 @@ export async function POST(request: Request) {
   }
 
   if (event.type === "checkout.session.completed") {
+    const dedupe = await dedupeStripeEvent(event.id, 60 * 60 * 24 * 7);
+    if (dedupe.ok && !dedupe.shouldProcess) {
+      return new Response("ok", { status: 200 });
+    }
     const session = event.data.object as Stripe.Checkout.Session;
 
     const itemsRaw = session.metadata?.items ?? null;
