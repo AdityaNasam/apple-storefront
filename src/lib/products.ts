@@ -13,7 +13,7 @@ export const PRODUCTS: readonly Product[] = [
     description: "Titanium. A17 Pro. Pro camera system.",
     priceUsdCents: 99900,
     imageUrl:
-      "https://images.unsplash.com/photo-1695048133142-1a20484c2f6b?auto=format&fit=crop&w=1400&q=80",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1400&q=80",
   },
   {
     id: "macbook-air-m3",
