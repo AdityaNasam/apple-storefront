@@ -37,10 +37,17 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     const itemsRaw = session.metadata?.items ?? null;
-    const parsedItems =
-      itemsRaw && typeof itemsRaw === "string"
-        ? (JSON.parse(itemsRaw) as Array<{ productId: string; quantity: number }>)
-        : undefined;
+    let parsedItems: Array<{ productId: string; quantity: number }> | undefined;
+    if (itemsRaw && typeof itemsRaw === "string") {
+      try {
+        parsedItems = JSON.parse(itemsRaw) as Array<{
+          productId: string;
+          quantity: number;
+        }>;
+      } catch {
+        parsedItems = undefined;
+      }
+    }
 
     await notifySlockOrder({
       orderId: `order_${session.id}`,

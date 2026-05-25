@@ -25,6 +25,8 @@ Required env vars in `.env.local`:
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+- `UPSTASH_REDIS_REST_URL` (recommended for webhook idempotency)
+- `UPSTASH_REDIS_REST_TOKEN` (recommended for webhook idempotency)
 
 Webhook (local):
 
