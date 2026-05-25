@@ -9,24 +9,6 @@ export type Product = {
 
 export const PRODUCTS: readonly Product[] = [
   {
-    id: "iphone-15-pro",
-    name: "iPhone 15 Pro",
-    description: "Titanium. A17 Pro. Pro camera system.",
-    priceUsdCents: 99900,
-    category: "iPhone",
-    imageUrl:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1400&q=80",
-  },
-  {
-    id: "airpods-pro",
-    name: "AirPods Pro",
-    description: "Active Noise Cancellation. Adaptive Transparency.",
-    priceUsdCents: 24900,
-    category: "AirPods",
-    imageUrl:
-      "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1400&q=80",
-  },
-  {
     id: "macbook-air-13-m5",
     name: "MacBook Air 13″ (M5)",
     description: "16GB / 512GB. Ultralight. All-day battery.",
@@ -88,6 +70,24 @@ export const PRODUCTS: readonly Product[] = [
     category: "MacBook",
     imageUrl:
       "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=1400&q=80",
+  },
+  {
+    id: "iphone-15-pro",
+    name: "iPhone 15 Pro",
+    description: "Titanium. A17 Pro. Pro camera system.",
+    priceUsdCents: 99900,
+    category: "iPhone",
+    imageUrl:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1400&q=80",
+  },
+  {
+    id: "airpods-pro",
+    name: "AirPods Pro",
+    description: "Active Noise Cancellation. Adaptive Transparency.",
+    priceUsdCents: 24900,
+    category: "AirPods",
+    imageUrl:
+      "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=1400&q=80",
   },
 ];
 
