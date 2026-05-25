@@ -2,7 +2,12 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { formatUsd, PRODUCTS } from "@/lib/products";
+import {
+  formatUsd,
+  getCategories,
+  getProductsByCategory,
+  PRODUCTS,
+} from "@/lib/products";
 
 type CartItem = { productId: string; quantity: number };
 
@@ -14,6 +19,8 @@ export default function Storefront() {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const categories = useMemo(() => getCategories(), []);
 
   const cartItems = useMemo<CartItem[]>(
     () =>
@@ -61,7 +68,7 @@ export default function Storefront() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="grid size-9 place-items-center rounded-xl bg-white/10 text-sm font-semibold">
-              
+
             </div>
             <div className="leading-tight">
               <div className="text-sm font-semibold tracking-tight">
@@ -94,7 +101,7 @@ export default function Storefront() {
           </h1>
           <p className="max-w-2xl text-pretty text-sm leading-6 text-zinc-300">
             Add items to your cart, then run through Stripe Checkout. On payment
-            success, the webhook can optionally hand off an “order task” to
+            success, the webhook can optionally hand off an "order task" to
             Slock via `SLOCK_ORDER_WEBHOOK_URL`.
           </p>
         </div>
@@ -105,88 +112,99 @@ export default function Storefront() {
           </div>
         ) : null}
 
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {PRODUCTS.map((p) => {
-            const qty = cart[p.id] ?? 0;
+        <div className="mt-10 flex flex-col gap-12">
+          {categories.map((category) => {
+            const products = getProductsByCategory(category);
             return (
-              <div
-                key={p.id}
-                className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    alt={p.name}
-                    src={p.imageUrl}
-                    fill
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                    priority={p.id === PRODUCTS[0]?.id}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-zinc-950/0" />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-lg font-semibold tracking-tight">
-                        {p.name}
-                      </div>
-                      <div className="mt-1 text-sm text-zinc-300">
-                        {p.description}
-                      </div>
-                    </div>
-                    <div className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-sm">
-                      {formatUsd(p.priceUsdCents)}
-                    </div>
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm text-zinc-100 hover:bg-white/10 disabled:opacity-40"
-                        disabled={qty <= 0}
-                        onClick={() =>
-                          setCart((prev) => ({
-                            ...prev,
-                            [p.id]: clampQty((prev[p.id] ?? 0) - 1),
-                          }))
-                        }
+              <section key={category}>
+                <h2 className="mb-6 text-xl font-semibold tracking-tight">
+                  {category}
+                </h2>
+                <div className="grid gap-6 md:grid-cols-3">
+                  {products.map((p) => {
+                    const qty = cart[p.id] ?? 0;
+                    return (
+                      <div
+                        key={p.id}
+                        className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5"
                       >
-                        −
-                      </button>
-                      <div className="w-10 text-center text-sm tabular-nums text-zinc-200">
-                        {qty}
-                      </div>
-                      <button
-                        type="button"
-                        className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm text-zinc-100 hover:bg-white/10 disabled:opacity-40"
-                        disabled={qty >= 99}
-                        onClick={() =>
-                          setCart((prev) => ({
-                            ...prev,
-                            [p.id]: clampQty((prev[p.id] ?? 0) + 1),
-                          }))
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
+                        <div className="relative aspect-[4/3] overflow-hidden">
+                          <Image
+                            alt={p.name}
+                            src={p.imageUrl}
+                            fill
+                            sizes="(min-width: 768px) 33vw, 100vw"
+                            className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-zinc-950/0" />
+                        </div>
+                        <div className="p-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <div className="text-lg font-semibold tracking-tight">
+                                {p.name}
+                              </div>
+                              <div className="mt-1 text-sm text-zinc-300">
+                                {p.description}
+                              </div>
+                            </div>
+                            <div className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-sm">
+                              {formatUsd(p.priceUsdCents)}
+                            </div>
+                          </div>
 
-                    <button
-                      type="button"
-                      className="rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-zinc-50 hover:bg-white/15"
-                      onClick={() =>
-                        setCart((prev) => ({
-                          ...prev,
-                          [p.id]: clampQty((prev[p.id] ?? 0) + 1),
-                        }))
-                      }
-                    >
-                      Add
-                    </button>
-                  </div>
+                          <div className="mt-5 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm text-zinc-100 hover:bg-white/10 disabled:opacity-40"
+                                disabled={qty <= 0}
+                                onClick={() =>
+                                  setCart((prev) => ({
+                                    ...prev,
+                                    [p.id]: clampQty((prev[p.id] ?? 0) - 1),
+                                  }))
+                                }
+                              >
+                                −
+                              </button>
+                              <div className="w-10 text-center text-sm tabular-nums text-zinc-200">
+                                {qty}
+                              </div>
+                              <button
+                                type="button"
+                                className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm text-zinc-100 hover:bg-white/10 disabled:opacity-40"
+                                disabled={qty >= 99}
+                                onClick={() =>
+                                  setCart((prev) => ({
+                                    ...prev,
+                                    [p.id]: clampQty((prev[p.id] ?? 0) + 1),
+                                  }))
+                                }
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-zinc-50 hover:bg-white/15"
+                              onClick={() =>
+                                setCart((prev) => ({
+                                  ...prev,
+                                  [p.id]: clampQty((prev[p.id] ?? 0) + 1),
+                                }))
+                              }
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>
@@ -228,4 +246,3 @@ export default function Storefront() {
     </div>
   );
 }
-
