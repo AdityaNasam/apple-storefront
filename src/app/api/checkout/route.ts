@@ -20,13 +20,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing items" }, { status: 400 });
   }
 
-  const lineItems = body.items.map((item) => {
+  const lineItems = [];
+  for (const item of body.items) {
     const product = getProduct(item.productId);
     if (!product) {
-      throw new Error(`Unknown product: ${item.productId}`);
+      return NextResponse.json(
+        { error: `Unknown productId: ${item.productId}` },
+        { status: 400 },
+      );
     }
+
     const quantity = Math.max(1, Math.min(99, Number(item.quantity) || 1));
-    return {
+    lineItems.push({
       quantity,
       price_data: {
         currency: "usd",
@@ -38,8 +43,8 @@ export async function POST(request: Request) {
           metadata: { productId: product.id },
         },
       },
-    };
-  });
+    });
+  }
 
   const stripe = getStripe();
   const appUrl = getAppUrl();
